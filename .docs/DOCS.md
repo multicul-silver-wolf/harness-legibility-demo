@@ -1,7 +1,7 @@
 ---
 title: Project Docs System
 description: Cross-domain durable knowledge for the harness-legibility-demo repository.
-updateAt: 2026-03-29
+updateAt: 2026-03-30
 ---
 
 # How To Use
@@ -12,6 +12,9 @@ updateAt: 2026-03-29
 
 # Repository-Wide Conventions
 
+- The repository is a local observability harness paired with a colocated Vitest/TDD homepage; use [`scripts/stack-up.sh`](../scripts/stack-up.sh) and [`scripts/stack-down.sh`](../scripts/stack-down.sh) to manage the per-worktree observability stack.
+- Worktree-specific observability state lives under [`.observability/<stack-id>`](../.observability); `STACK_ID` and `WORKTREE_ID` isolate logs, metrics, and traces per checkout.
+- Shared telemetry code lives under [`src/lib/observability`](../src/lib/observability), with [`instrumentation.ts`](../instrumentation.ts), [`src/app/api/metrics/route.ts`](../src/app/api/metrics/route.ts), and [`src/app/api/observability/journey/route.ts`](../src/app/api/observability/journey/route.ts) as stable app-facing entry points.
 - Runtime stack is `next@16.2.1` with `react@19.2.4` and `react-dom@19.2.4`; treat framework behavior as Next 16 specific.
 - Package management is currently npm-based and the lockfile of record is [`package-lock.json`](../package-lock.json).
 - Primary app code lives under [`src/app`](../src/app); this repository currently uses the App Router only.

@@ -1,7 +1,7 @@
 ---
 title: Docs Index
 description: First-level map for repository-specific durable knowledge.
-updateAt: 2026-03-29
+updateAt: 2026-03-30
 ---
 
 # How To Use
@@ -11,4 +11,5 @@ updateAt: 2026-03-29
 
 # Domains
 
+- [observability](./observability/index.md): Consult for the local observability stack, telemetry signals, and query contracts in `src/lib/observability`, `src/app/api`, `instrumentation.ts`, and `scripts/stack-*.sh`.
 - [frontend](./frontend/index.md): Consult for App Router structure, page entry points, and styling surfaces in `src/app`.
