@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "project-docs-system": {
+      "source": "multicul-silver-wolf/agent-docs-system-skill",
+      "sourceType": "github",
+      "computedHash": "6ea98537121955e60c52674347455887a0878046314e33d8f5162ee7de2637d5"
+    }
+  }
+}
