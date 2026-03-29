@@ -42,9 +42,30 @@ service_name="${OBSERVABILITY_SERVICE_NAME:-$worktree_id}"
 logs_endpoint="${OBSERVABILITY_LOGS_ENDPOINT:-http://127.0.0.1:10528/insert/jsonline?_stream_fields=service,stack_id,worktree_id,level,event_type}"
 traces_endpoint="${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:-http://127.0.0.1:11428/insert/opentelemetry/v1/traces}"
 otel_service_name="${OTEL_SERVICE_NAME:-$service_name}"
-victoria_logs_bin="${VICTORIA_LOGS_BIN:-victoria-logs-prod}"
-victoria_metrics_bin="${VICTORIA_METRICS_BIN:-victoria-metrics-prod}"
-victoria_traces_bin="${VICTORIA_TRACES_BIN:-victoria-traces-prod}"
+
+resolve_binary() {
+  local override="${1:-}"
+  shift
+
+  if [[ -n "$override" ]]; then
+    printf '%s\n' "$override"
+    return 0
+  fi
+
+  local candidate
+  for candidate in "$@"; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  printf '%s\n' ""
+}
+
+victoria_logs_bin="$(resolve_binary "${VICTORIA_LOGS_BIN:-}" victoria-logs-prod victorialogs)"
+victoria_metrics_bin="$(resolve_binary "${VICTORIA_METRICS_BIN:-}" victoria-metrics-prod victoriametrics)"
+victoria_traces_bin="$(resolve_binary "${VICTORIA_TRACES_BIN:-}" victoria-traces-prod victoria-traces)"
 
 require_binary() {
   local binary="$1"
@@ -52,6 +73,43 @@ require_binary() {
     printf '%s\n' "missing required binary: $binary" >&2
     exit 1
   fi
+}
+
+start_process() {
+  local name="$1"
+  local binary="$2"
+  shift 2
+
+  local log_file="$storage_root/process-logs/${name}.log"
+  local handle_file="$storage_root/pids/${name}.pid"
+
+  if [[ "$(uname -s)" == "Darwin" ]] && command -v launchctl >/dev/null 2>&1; then
+    local label="dev.harness-legibility.${stack_id}.${name}"
+    launchctl remove "$label" >/dev/null 2>&1 || true
+    launchctl submit -l "$label" -o "$log_file" -e "$log_file" -- "$binary" "$@"
+    printf 'launchctl:%s\n' "$label" >"$handle_file"
+    return 0
+  fi
+
+  nohup "$binary" "$@" >"$log_file" 2>&1 </dev/null &
+  printf 'pid:%s\n' "$!" >"$handle_file"
+}
+
+wait_for_health() {
+  local name="$1"
+  local url="$2"
+
+  local attempt
+  for attempt in $(seq 1 40); do
+    if curl -fsS "$url" >/dev/null 2>&1; then
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf '%s\n' "failed to start $name at $url" >&2
+  exit 1
 }
 
 mkdir -p \
@@ -114,28 +172,32 @@ export VICTORIA_LOGS_BIN="$victoria_logs_bin"
 export VICTORIA_METRICS_BIN="$victoria_metrics_bin"
 export VICTORIA_TRACES_BIN="$victoria_traces_bin"
 
-"$victoria_logs_bin" \
+start_process \
+  "victoria-logs" \
+  "$victoria_logs_bin" \
   -storageDataPath="$storage_root/victoria-logs" \
   -loggerLevel=INFO \
-  -httpListenAddr=:10528 \
-  >"$storage_root/process-logs/victoria-logs.log" 2>&1 &
-echo $! >"$storage_root/pids/victoria-logs.pid"
+  -httpListenAddr=:10528
 
-"$victoria_metrics_bin" \
+start_process \
+  "victoria-metrics" \
+  "$victoria_metrics_bin" \
   -storageDataPath="$storage_root/victoria-metrics" \
   -promscrape.config="$storage_root/victoria-metrics/promscrape.yml" \
   -selfScrapeInterval=5s \
   -loggerLevel=INFO \
-  -httpListenAddr=:18428 \
-  >"$storage_root/process-logs/victoria-metrics.log" 2>&1 &
-echo $! >"$storage_root/pids/victoria-metrics.pid"
+  -httpListenAddr=:18428
 
-"$victoria_traces_bin" \
+start_process \
+  "victoria-traces" \
+  "$victoria_traces_bin" \
   -storageDataPath="$storage_root/victoria-traces" \
   -loggerLevel=INFO \
-  -httpListenAddr=:11428 \
-  >"$storage_root/process-logs/victoria-traces.log" 2>&1 &
-echo $! >"$storage_root/pids/victoria-traces.pid"
+  -httpListenAddr=:11428
+
+wait_for_health "victoria-logs" "http://127.0.0.1:10528/health"
+wait_for_health "victoria-metrics" "http://127.0.0.1:18428/health"
+wait_for_health "victoria-traces" "http://127.0.0.1:11428/health"
 
 printf '%s\n' "stack up complete"
 printf '%s\n' "source $storage_root/env"

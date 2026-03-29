@@ -45,13 +45,31 @@ stop_pid_file() {
     return 0
   fi
 
-  local pid
-  pid="$(cat "$pid_file")"
+  local handle
+  handle="$(cat "$pid_file")"
 
-  if kill -0 "$pid" >/dev/null 2>&1; then
-    kill "$pid"
-    wait "$pid" 2>/dev/null || true
-  fi
+  case "$handle" in
+    launchctl:*)
+      launchctl remove "${handle#launchctl:}" >/dev/null 2>&1 || true
+      ;;
+    pid:*)
+      local pid="${handle#pid:}"
+      if kill -0 "$pid" >/dev/null 2>&1; then
+        kill "$pid"
+        wait "$pid" 2>/dev/null || true
+      fi
+      ;;
+    *)
+      if [[ "$handle" =~ ^[0-9]+$ ]]; then
+        if kill -0 "$handle" >/dev/null 2>&1; then
+          kill "$handle"
+          wait "$handle" 2>/dev/null || true
+        fi
+      elif [[ -n "$handle" ]] && command -v launchctl >/dev/null 2>&1; then
+        launchctl remove "$handle" >/dev/null 2>&1 || true
+      fi
+      ;;
+  esac
 
   rm -f "$pid_file"
 }
