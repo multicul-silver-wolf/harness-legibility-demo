@@ -11,7 +11,6 @@ export type StackContext = {
   stackId: string;
   worktreeId: string;
   service: string;
-  composeProjectName: string;
   storageRoot: string;
   endpoints: {
     logsIngestUrl: string;
@@ -47,10 +46,6 @@ function deriveStackId(cwd: string) {
   return `hld-${hash.toString(16).padStart(8, "0")}`;
 }
 
-function toComposeProjectName(stackId: string) {
-  return stackId.replace(/-/g, "_");
-}
-
 export function createStackContext(input: StackContextInput): StackContext {
   const normalizedCwd = normalizePath(input.cwd);
   const stackId = input.stackId ?? deriveStackId(normalizedCwd);
@@ -60,7 +55,6 @@ export function createStackContext(input: StackContextInput): StackContext {
     stackId,
     worktreeId,
     service: input.service,
-    composeProjectName: toComposeProjectName(stackId),
     storageRoot: path.join(normalizedCwd, ".observability", stackId),
     endpoints: {
       logsIngestUrl: LOGS_INGEST_URL,

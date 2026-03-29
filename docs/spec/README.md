@@ -66,7 +66,7 @@ flowchart LR
 Every worktree stack gets:
 
 - a unique `stack_id`;
-- unique ports or a unique compose project name;
+- unique local ports when needed;
 - a dedicated storage directory under the worktree;
 - labels or fields attached to every signal:
   - `stack_id`

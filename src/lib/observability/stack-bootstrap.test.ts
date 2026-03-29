@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { createStackContext } from "./stack-context";
 import {
   buildAppObservabilityEnv,
-  renderDockerComposeTemplate,
+  buildLocalProcessPlan,
   renderVictoriaMetricsScrapeConfig,
 } from "./stack-bootstrap";
 
@@ -33,23 +33,41 @@ describe("stack bootstrap helpers", () => {
 
   it("renders a VictoriaMetrics scrape config for the Next.js metrics route", () => {
     const config = renderVictoriaMetricsScrapeConfig({
-      appTarget: "host.docker.internal:3000",
+      appTarget: "127.0.0.1:3000",
     });
 
     expect(config).toContain("job_name: nextjs-app");
     expect(config).toContain("metrics_path: /api/metrics");
-    expect(config).toContain("- host.docker.internal:3000");
+    expect(config).toContain("- 127.0.0.1:3000");
   });
 
-  it("renders a compose template with the three Victoria services and stack volumes", () => {
-    const compose = renderDockerComposeTemplate();
+  it("builds a local process plan for the three Victoria binaries", () => {
+    const context = createStackContext({
+      cwd: "/Users/openclaw/projects/Playground/harness-legibility-demo",
+      service: "harness-legibility-demo",
+    });
 
-    expect(compose).toContain("victoria-logs:");
-    expect(compose).toContain("victoria-metrics:");
-    expect(compose).toContain("victoria-traces:");
-    expect(compose).toContain("${STACK_STORAGE_ROOT}/victoria-logs");
-    expect(compose).toContain("${STACK_STORAGE_ROOT}/victoria-metrics");
-    expect(compose).toContain("${STACK_STORAGE_ROOT}/victoria-traces");
-    expect(compose).toContain("${STACK_STORAGE_ROOT}/victoria-metrics/promscrape.yml");
+    const plan = buildLocalProcessPlan(context);
+
+    expect(plan.binaries).toEqual({
+      logs: "victoria-logs-prod",
+      metrics: "victoria-metrics-prod",
+      traces: "victoria-traces-prod",
+    });
+    expect(plan.paths.logsDataDir).toContain(
+      ".observability/hld-2d2a19b8/victoria-logs",
+    );
+    expect(plan.paths.metricsDataDir).toContain(
+      ".observability/hld-2d2a19b8/victoria-metrics",
+    );
+    expect(plan.paths.tracesDataDir).toContain(
+      ".observability/hld-2d2a19b8/victoria-traces",
+    );
+    expect(plan.paths.promScrapeConfig).toContain(
+      ".observability/hld-2d2a19b8/victoria-metrics/promscrape.yml",
+    );
+    expect(plan.commands.logs.join(" ")).toContain("-httpListenAddr=:10528");
+    expect(plan.commands.metrics.join(" ")).toContain("-httpListenAddr=:18428");
+    expect(plan.commands.traces.join(" ")).toContain("-httpListenAddr=:11428");
   });
 });

@@ -4,9 +4,8 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-compose_file="$repo_root/docker-compose.observability.yml"
 
-IFS=$'\t' read -r stack_id worktree_id compose_project_name <<EOF
+IFS=$'\t' read -r stack_id worktree_id <<EOF
 $(node <<'NODE'
 const path = require("node:path");
 
@@ -31,19 +30,35 @@ const stackId = `hld-${((fnv1a32(cwd) ^ stackIdSalt) >>> 0)
   .toString(16)
   .padStart(8, "0")}`;
 const worktreeId = path.basename(cwd);
-const composeProjectName = stackId.replace(/-/g, "_");
 
-process.stdout.write([stackId, worktreeId, composeProjectName].join("\t"));
+process.stdout.write([stackId, worktreeId].join("\t"));
 NODE
 )
 EOF
 
 storage_root="$repo_root/.observability/$stack_id"
 
-docker compose \
-  -f "$compose_file" \
-  -p "$compose_project_name" \
-  down -v --remove-orphans
+stop_pid_file() {
+  local pid_file="$1"
+
+  if [[ ! -f "$pid_file" ]]; then
+    return 0
+  fi
+
+  local pid
+  pid="$(cat "$pid_file")"
+
+  if kill -0 "$pid" >/dev/null 2>&1; then
+    kill "$pid"
+    wait "$pid" 2>/dev/null || true
+  fi
+
+  rm -f "$pid_file"
+}
+
+stop_pid_file "$storage_root/pids/victoria-logs.pid"
+stop_pid_file "$storage_root/pids/victoria-metrics.pid"
+stop_pid_file "$storage_root/pids/victoria-traces.pid"
 
 rm -rf "$storage_root"
 

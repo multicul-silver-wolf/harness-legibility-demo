@@ -17,7 +17,6 @@ describe("createStackContext", () => {
     expect(context.stackId).toBe("hld-2d2a19b8");
     expect(context.worktreeId).toBe("harness-legibility-demo");
     expect(context.service).toBe("harness-legibility-demo");
-    expect(context.composeProjectName).toBe("hld_2d2a19b8");
     expect(context.storageRoot).toBe(
       path.join(
         "/Users/openclaw/projects/Playground/harness-legibility-demo",
@@ -40,7 +39,6 @@ describe("createStackContext", () => {
     });
 
     expect(context.stackId).toBe("hld-fixed-stack");
-    expect(context.composeProjectName).toBe("hld_fixed_stack");
     expect(context.storageRoot).toBe(
       path.join("/tmp/demo/worktrees/feature-a", ".observability", "hld-fixed-stack"),
     );
