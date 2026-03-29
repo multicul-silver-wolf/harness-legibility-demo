@@ -116,23 +116,31 @@ function normalizeHit(hit: VictoriaLogsHit): QueryLogRow {
 }
 
 async function parseQueryResponse(response: Response): Promise<VictoriaLogsQueryResponse> {
+  if (typeof response.text === "function") {
+    const text = await response.text();
+
+    if (!text.trim()) {
+      return { hits: [] };
+    }
+
+    try {
+      return JSON.parse(text) as VictoriaLogsQueryResponse;
+    } catch {
+      const hits = text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as VictoriaLogsHit);
+
+      return { hits };
+    }
+  }
+
   if (typeof response.json === "function") {
     return (await response.json()) as VictoriaLogsQueryResponse;
   }
 
-  const text = typeof response.text === "function" ? await response.text() : "";
-
-  try {
-    return JSON.parse(text) as VictoriaLogsQueryResponse;
-  } catch {
-    const hits = text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => JSON.parse(line) as VictoriaLogsHit);
-
-    return { hits };
-  }
+  return { hits: [] };
 }
 
 export async function queryLogs(input: QueryLogsInput): Promise<QueryLogRow[]> {

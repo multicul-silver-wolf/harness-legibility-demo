@@ -46,6 +46,8 @@ describe("createAppLogger", () => {
     );
 
     const [, request] = fetchMock.mock.calls[0];
+    expect(request.body).toContain('"_msg":"startup complete"');
+    expect(request.body).toContain('"_time":"');
     expect(request.body).toContain('"message":"startup complete"');
     expect(request.body).toContain('"event_type":"startup"');
     expect(request.body).toContain('"level":"info"');

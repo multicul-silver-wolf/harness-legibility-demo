@@ -92,7 +92,23 @@ function readErrorBody(response: Response): Promise<string> {
 }
 
 function appendTag(url: URL, key: string, value: string): void {
-  url.searchParams.append("tags", `${key}=${escapeQueryValue(value)}`);
+  const current = url.searchParams.get("tags");
+  const tags = current ? (JSON.parse(current) as Record<string, string>) : {};
+  tags[key] = value;
+  url.searchParams.set("tags", JSON.stringify(tags));
+}
+
+function toJaegerTimestamp(value: string): string {
+  if (/^\d+$/.test(value)) {
+    return value;
+  }
+
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) {
+    return value;
+  }
+
+  return String(parsed * 1000);
 }
 
 function buildUrl(input: QueryTracesInput): URL {
@@ -128,15 +144,15 @@ function buildUrl(input: QueryTracesInput): URL {
   }
 
   if (typeof filters.minDurationMs === "number") {
-    url.searchParams.set("min_duration_ms", String(filters.minDurationMs));
+    url.searchParams.set("minDuration", `${filters.minDurationMs}ms`);
   }
 
   if (input.since) {
-    url.searchParams.set("start", input.since);
+    url.searchParams.set("start", toJaegerTimestamp(input.since));
   }
 
   if (input.until) {
-    url.searchParams.set("end", input.until);
+    url.searchParams.set("end", toJaegerTimestamp(input.until));
   }
 
   if (typeof input.limit === "number") {

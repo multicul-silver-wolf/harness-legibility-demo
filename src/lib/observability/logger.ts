@@ -32,6 +32,8 @@ export type AppLoggerOptions = {
 };
 
 type SerializedLogEvent = {
+  _msg: string;
+  _time: string;
   ts: string;
   level: LogLevel;
   message: string;
@@ -75,6 +77,8 @@ function toSnakeCaseEvent(input: {
   } = input;
 
   const event: SerializedLogEvent = {
+    _msg: message,
+    _time: new Date().toISOString(),
     ts: new Date().toISOString(),
     level,
     message,

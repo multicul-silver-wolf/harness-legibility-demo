@@ -39,7 +39,7 @@ describe("queryTraces", () => {
     });
 
     const result = await queryTraces({
-      endpoint: "http://127.0.0.1:11428/api/traces",
+      endpoint: "http://127.0.0.1:11428/select/jaeger/api/traces",
       filters: {
         service: "harness-legibility-demo",
         stackId: "hld-2d2a19b8",
@@ -54,8 +54,12 @@ describe("queryTraces", () => {
     const [url] = fetchMock.mock.calls[0];
     expect(url).toContain("service=harness-legibility-demo");
     expect(url).toContain("tags=");
-    expect(decodeURIComponent(url)).toContain("journey=action.submit");
-    expect(decodeURIComponent(url)).toContain("stack_id=hld-2d2a19b8");
+    expect(decodeURIComponent(url)).toContain(
+      'tags={"stack_id":"hld-2d2a19b8","journey":"action.submit"}',
+    );
+    expect(url).toContain("minDuration=2000ms");
+    expect(url).toContain("start=1774778400000000");
+    expect(url).toContain("end=1774779000000000");
     expect(result).toEqual([
       {
         traceId: "trace-123",
@@ -84,7 +88,7 @@ describe("queryTraces", () => {
 
     await expect(
       queryTraces({
-        endpoint: "http://127.0.0.1:11428/api/traces",
+        endpoint: "http://127.0.0.1:11428/select/jaeger/api/traces",
         filters: {
           service: "harness-legibility-demo",
           stackId: "hld-2d2a19b8",
