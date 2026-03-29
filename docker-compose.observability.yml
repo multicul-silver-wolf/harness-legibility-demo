@@ -1,0 +1,41 @@
+services:
+  victoria-logs:
+    image: docker.io/victoriametrics/victoria-logs:v1.48.0
+    command:
+      - -storageDataPath=/victoria-logs-data
+      - -loggerLevel=INFO
+    ports:
+      - "${VICTORIALOGS_PORT:-10528}:9428"
+    volumes:
+      - "${STACK_STORAGE_ROOT}/victoria-logs:/victoria-logs-data"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  victoria-metrics:
+    image: docker.io/victoriametrics/victoria-metrics:v1.137.0
+    command:
+      - -storageDataPath=/victoria-metrics-data
+      - -selfScrapeInterval=5s
+      - -promscrape.config=/victoria-metrics-data/promscrape.yml
+      - -loggerLevel=INFO
+    ports:
+      - "${VICTORIAMETRICS_PORT:-18428}:8428"
+    volumes:
+      - "${STACK_STORAGE_ROOT}/victoria-metrics:/victoria-metrics-data"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  victoria-traces:
+    image: docker.io/victoriametrics/victoria-traces:latest
+    command:
+      - -storageDataPath=/victoria-traces-data
+      - -loggerLevel=INFO
+    ports:
+      - "${VICTORIATRACES_PORT:-11428}:10428"
+    volumes:
+      - "${STACK_STORAGE_ROOT}/victoria-traces:/victoria-traces-data"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
