@@ -1,11 +1,8 @@
-export const CRITICAL_JOURNEYS = [
-  "home.initial_load",
-  "demo.component_interaction",
-  "diagnostics.view",
-  "action.submit",
-] as const;
+import { CANONICAL_JOURNEYS, type CanonicalJourney } from "./journeys";
 
-export type CriticalJourney = (typeof CRITICAL_JOURNEYS)[number];
+export const CRITICAL_JOURNEYS = CANONICAL_JOURNEYS;
+
+export type CriticalJourney = CanonicalJourney;
 
 export type TraceIdentity = {
   service: string;

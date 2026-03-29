@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import {
+  CANONICAL_JOURNEYS,
+  getJourneyDurationMs,
+  JOURNEY_TELEMETRY_ENDPOINT,
+  type CanonicalJourney,
+} from "@/lib/observability/journeys";
 
 const phases = [
   {
@@ -23,9 +30,71 @@ function getNextPhaseIndex(currentIndex: number) {
   return (currentIndex + 1) % phases.length;
 }
 
+async function sendJourneyTelemetry(input: {
+  journey: CanonicalJourney;
+  route: string;
+  step: string;
+}) {
+  await fetch(JOURNEY_TELEMETRY_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      journey: input.journey,
+      route: input.route,
+      step: input.step,
+      durationMs: getJourneyDurationMs(input.journey),
+    }),
+  });
+}
+
 export function TddCycleDemo() {
   const [phaseIndex, setPhaseIndex] = useState(0);
+  const hasTrackedInitialLoad = useRef(false);
   const phase = phases[phaseIndex];
+
+  useEffect(() => {
+    if (hasTrackedInitialLoad.current) {
+      return;
+    }
+
+    hasTrackedInitialLoad.current = true;
+
+    void sendJourneyTelemetry({
+      journey: CANONICAL_JOURNEYS[0],
+      route: "/",
+      step: "page-load",
+    }).catch(() => undefined);
+  }, []);
+
+  function advanceCycle() {
+    void sendJourneyTelemetry({
+      journey: CANONICAL_JOURNEYS[1],
+      route: "/",
+      step: "advance-cycle",
+    }).catch(() => undefined);
+
+    setPhaseIndex((currentIndex) => getNextPhaseIndex(currentIndex));
+  }
+
+  function resetToRed() {
+    void sendJourneyTelemetry({
+      journey: CANONICAL_JOURNEYS[2],
+      route: "/",
+      step: "reset-to-red",
+    }).catch(() => undefined);
+
+    setPhaseIndex(0);
+  }
+
+  function submitAction() {
+    void sendJourneyTelemetry({
+      journey: CANONICAL_JOURNEYS[3],
+      route: "/",
+      step: "submit-action",
+    }).catch(() => undefined);
+  }
 
   return (
     <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -51,17 +120,24 @@ export function TddCycleDemo() {
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
-          onClick={() => setPhaseIndex(getNextPhaseIndex(phaseIndex))}
+          onClick={advanceCycle}
           type="button"
         >
           Advance cycle
         </button>
         <button
           className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
-          onClick={() => setPhaseIndex(0)}
+          onClick={resetToRed}
           type="button"
         >
           Reset to red
+        </button>
+        <button
+          className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
+          onClick={submitAction}
+          type="button"
+        >
+          Submit action
         </button>
       </div>
     </section>
