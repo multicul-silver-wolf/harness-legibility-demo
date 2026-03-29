@@ -16,7 +16,8 @@ updateAt: 2026-03-29
 - Package management is currently npm-based and the lockfile of record is [`package-lock.json`](../package-lock.json).
 - Primary app code lives under [`src/app`](../src/app); this repository currently uses the App Router only.
 - Styling starts in [`src/app/globals.css`](../src/app/globals.css) via `@import "tailwindcss"` and shared CSS custom properties.
-- The default homepage is still scaffold content from Create Next App, so product-specific behavior has not been established yet.
+- Unit and component tests are colocated with their targets using `*.test.ts` and `*.test.tsx` file names.
+- The homepage now acts as a lightweight testing entry point that explains the Vitest workflow and renders a small interactive TDD cycle demo.
 
 # Docs Rules
 

@@ -13,3 +13,4 @@ updateAt: 2026-03-29
 
 - [app-router](./app-router.md): Consult when editing the root layout, homepage entry route, or route-level metadata.
 - [styling](./styling.md): Consult when changing global CSS, theme tokens, or how fonts are applied.
+- [testing](./testing.md): Consult when adding colocated Vitest files, shared test setup, or React component tests.
