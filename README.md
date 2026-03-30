@@ -179,6 +179,19 @@ npm run smoke:readme
 
 ---
 
+## References
+
+- [OpenAI: Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)
+  - Core idea: agents should not stop at code generation; they should use runtime evidence to prove a change is correct.
+- [VictoriaLogs](https://github.com/VictoriaMetrics/VictoriaLogs)
+  - Structured log storage and query engine used here as the log proof surface for journey and startup validation.
+- [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)
+  - Prometheus-compatible metrics backend used here for scrape-based health and regression checks.
+- [VictoriaTraces](https://github.com/VictoriaMetrics/VictoriaTraces)
+  - OTLP trace backend used here so startup and journey claims can be backed by concrete span evidence.
+
+---
+
 ## License
 
 MIT (inherited from repository settings if present).
