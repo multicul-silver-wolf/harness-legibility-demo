@@ -1,171 +1,184 @@
 # Harness Legibility Demo
 
-一个基于 Next.js 的本地 observability harness demo，用来复现 OpenAI 在 harness engineering 文章里提到的这条思路:
+A production-minded local **agent validation harness** built with Next.js.
 
-- app 对 agent 可见
-- logs / metrics / traces 对 agent 可查
-- agent 能基于运行时信号验证自己的修改
+This repo demonstrates one core idea from harness engineering:
 
-这个子项目目前聚焦 3 条观测链路:
+> Don’t trust terminal output alone. Let agents prove correctness using runtime evidence (logs, metrics, traces).
 
-- `VictoriaLogs`：结构化日志
-- `VictoriaMetrics`：Prometheus 风格 metrics
-- `VictoriaTraces`：OTLP traces + Jaeger 查询 API
+---
 
-## 这个仓库是给谁用的
+## Why this exists
 
-这个仓库适合三类人:
+Most coding agents can change code. Fewer can **verify** that their change is correct in runtime.
 
-- 正在做 agent / coding agent / harness engineering 实验的人
-- 想验证“代码改动之后，agent 能不能自己用运行时信号证明改动是对的”的人
-- 想搭一个最小本地 observability playground，用来练 logs / metrics / traces 查询和回归验证的人
+This demo gives you a minimal but complete playground where an agent can:
 
-比较典型的使用场景:
+1. run the app,
+2. trigger canonical user journeys,
+3. query telemetry backends,
+4. decide if the system is healthy after a change.
 
-- 你在设计一个 agent 验证闭环，需要一个小而完整的 demo 看 agent 能不能自己启动服务、触发交互、再用 telemetry 给出结论
-- 你在研究“不要只看终端输出，要看真实运行时信号”这件事，想有一个仓库专门练 startup、journey、regression 这几类验证
-- 你想给团队演示 harness legibility 的价值，让大家看到一个 Next.js app 如何把 logs、metrics、traces 暴露成 agent 可用的证据面
+If you are building agentic dev workflows, this is the missing “proof layer”.
 
-简单说，这个仓库是一个本地 agent-validation harness：
+---
 
-- 人或 agent 先改代码
-- 再启动 app 和 observability stack
-- 然后通过 startup telemetry、journey logs、journey metrics、journey spans 来验证系统是否仍然按预期工作
-- 最后把这些信号当成“修改成功”的证据，而不是只靠终端里的一句 `Ready in ...`
+## What’s inside
 
-应用里目前已经接好了这些信号:
+### App layer
+- Next.js app (App Router)
+- Demo UI with deterministic interaction flows
+- Canonical journey events:
+  - `home.initial_load`
+  - `demo.component_interaction`
+  - `diagnostics.view`
+  - `action.submit`
 
-- startup telemetry
-- `home.initial_load`
-- `demo.component_interaction`
-- `diagnostics.view`
-- `action.submit`
+### Observability layer
+- **VictoriaLogs** for structured logs
+- **VictoriaMetrics** for Prometheus-style metrics
+- **VictoriaTraces** for OTLP traces + Jaeger query API
+
+### Harness scripts
+- `scripts/stack-up.sh` — boot local telemetry stack for current worktree
+- `scripts/stack-down.sh` — stop stack + clean stack storage
+- `npm run smoke:readme` — reproducible README smoke scenario
+
+---
+
+## Architecture (mental model)
+
+```text
+Agent/Human
+   │
+   ├─ interacts with Next.js demo routes/UI
+   │
+   ├─ emits structured logs ───────────────► VictoriaLogs
+   ├─ emits metrics (/api/metrics scrape) ─► VictoriaMetrics
+   └─ emits OTLP traces ───────────────────► VictoriaTraces
+
+Verification loop:
+change → run journeys → query logs/metrics/traces → accept/reject change
+```
+
+This is the whole point: **agent-readable evidence loop**.
+
+---
+
+## Prerequisites
+
+- Node.js 20+
+- npm
+- Local Victoria binaries available in PATH:
+  - `victoria-logs` (or `victoria-logs-prod`)
+  - `victoria-metrics` (or `victoria-metrics-prod`)
+  - `victoria-traces` (or `victoria-traces-prod`)
+
+> You can also point to custom binary paths via env vars (`VICTORIA_LOGS_BIN`, `VICTORIA_METRICS_BIN`, `VICTORIA_TRACES_BIN`).
+
+---
 
 ## Quick Start
 
-1. 启动本地观测栈
-
 ```bash
+# 1) install deps
+npm install
+
+# 2) start local observability stack
 ./scripts/stack-up.sh
-```
 
-脚本会输出一条 `source .../env`，把它执行掉。
-
-2. 载入当前 worktree 的 observability 环境变量
-
-```bash
+# 3) load generated env file (use the path printed by stack-up)
 source .observability/<stack-id>/env
-```
 
-3. 启动 Next.js
-
-```bash
+# 4) run app
 npm run dev
 ```
 
-如果你想直接把 README 里的示例 prompt 当成一轮可重复的端到端验收，可以运行:
-
-```bash
-npm run smoke:readme
-```
-
-4. 打开首页并触发几次交互
-
+Open `http://localhost:3000` and click through demo actions:
 - `Advance cycle`
 - `Reset to red`
 - `Submit action`
 
-5. 直接检查当前 app 暴露出的 metrics
+Then validate runtime signals:
 
 ```bash
 curl http://localhost:3000/api/metrics
 ```
 
-## What To Try
+---
 
-你可以把这个 demo 当成一个“让 agent 学会看运行时信号”的最小试验场。
+## Reproducible smoke scenario
 
-比较值得先试的方向:
-
-- 改页面交互，再让 agent 用 traces 验证关键 journey 时长
-- 故意让某条 route 变慢，再让 agent 用 metrics 找出来
-- 故意改坏日志字段，再让 agent 修到查询恢复可用
-- 给 journey route 人为加一个失败分支，再让 agent 用 logs + metrics 解释故障
-
-## Example Prompts
-
-下面这些 prompt 是按这个 harness 当前的能力写的，基本可以直接用。
-
-### Startup Gate
-
-```text
-Start the local observability stack for this worktree, boot the app, and verify that service startup completes in under 800ms. Use the startup metric and startup trace instead of guessing from the terminal output.
+```bash
+npm run smoke:readme
+# or
+npm run smoke:readme:verbose
 ```
 
-```text
-Check whether the current startup signal is healthy. Tell me the latest startup duration, whether it is under 800ms, and which log and trace records support your conclusion.
-```
+This runs a deterministic sequence intended for harness validation and README-level regression checks.
 
-### Journey Latency
+---
 
-```text
-Open the demo page, trigger the canonical journeys, and verify that no span for home.initial_load, demo.component_interaction, diagnostics.view, or action.submit exceeds two seconds.
-```
+## Useful query endpoints
 
-```text
-Run the UI once and summarize the latest span durations for the four canonical journeys. If any journey is slower than expected, point to the exact trace evidence.
-```
-
-### Logs
-
-```text
-Exercise the demo interactions and inspect the latest logs for this worktree. Confirm that the journey logs are structured correctly and list the most recent event for each canonical journey.
-```
-
-```text
-Check the current logs for this stack and tell me whether there are any error-level events, missing message fields, or malformed journey records.
-```
-
-### Metrics
-
-```text
-Verify that VictoriaMetrics is scraping the Next.js metrics endpoint successfully, then report the latest demo_journey_runs_total values for each canonical journey in this worktree.
-```
-
-```text
-Use Prometheus-style queries against the local metrics backend to tell me how many journey runs have been observed so far, how many HTTP request errors occurred, and what the latest startup duration is.
-```
-
-### Regression Checks
-
-```text
-Make a small change to the demo, rerun the canonical journeys, and use logs, metrics, and traces to prove the harness still works end to end.
-```
-
-```text
-Treat this repo like an agent-validation harness. After your change, use the local observability stack to confirm that the app still emits startup telemetry, journey logs, journey metrics, and journey spans.
-```
-
-## Useful Endpoints
-
-- app metrics: `http://localhost:3000/api/metrics`
-- journey ingestion route: `http://localhost:3000/api/observability/journey`
+- App metrics endpoint: `http://localhost:3000/api/metrics`
+- Journey ingestion route: `http://localhost:3000/api/observability/journey`
 - VictoriaLogs query: `http://127.0.0.1:10528/select/logsql/query`
 - VictoriaMetrics query API: `http://127.0.0.1:18428/api/v1/query`
 - VictoriaTraces Jaeger query API: `http://127.0.0.1:11428/select/jaeger/api/traces`
 
-## Validation
+---
 
-本项目当前通过了这些基础检查:
+## Example prompts for coding agents
+
+### Startup gate
+```text
+Boot the local stack and app, then verify startup latency is below 800ms using startup metric + startup trace. Do not infer from terminal output.
+```
+
+### Journey latency
+```text
+Run the canonical journeys and report the latest span duration for home.initial_load, demo.component_interaction, diagnostics.view, and action.submit. Flag any span over 2s with trace evidence.
+```
+
+### Structured logs check
+```text
+Inspect the latest logs for this stack and confirm each canonical journey has a valid structured event. Report any missing fields or error-level records.
+```
+
+### Regression proof
+```text
+After making your code change, prove the harness still emits startup telemetry, journey logs, journey metrics, and journey spans. Cite concrete query evidence.
+```
+
+---
+
+## Quality gates
 
 ```bash
-npx vitest run
+npm run test
 npm run build
 npm run smoke:readme
 ```
 
-## Shut Down
+---
+
+## Shut down
 
 ```bash
 ./scripts/stack-down.sh
 ```
+
+---
+
+## Who should use this
+
+- Builders experimenting with coding agents / harness engineering
+- Teams designing autonomous verification loops
+- Anyone who wants agent changes to be backed by runtime evidence, not vibes
+
+---
+
+## License
+
+MIT (inherited from repository settings if present).
