@@ -162,6 +162,16 @@ Use $nextjs-observability-harness to add the demo-style observability harness to
 
 ---
 
+## Skill Optimization
+
+We are also using [`skill-optimizer`](https://github.com/hqhq1025/skill-optimizer) to audit and improve `nextjs-observability-harness` based on real experiment runs instead of static taste alone.
+
+Shoutout to [`skill-optimizer`](https://github.com/hqhq1025/skill-optimizer) and its author [@hqhq1025](https://github.com/hqhq1025) for providing a concrete audit framework for trigger quality, workflow completion, token economics, and undertrigger detection.
+
+The first audit write-up lives at [`.docs/observations/experiment-01-skill-optimizer-audit.md`](./.docs/observations/experiment-01-skill-optimizer-audit.md).
+
+---
+
 ## Useful query endpoints
 
 - App metrics endpoint: `http://localhost:3000/api/metrics`
@@ -232,6 +242,8 @@ npm run smoke:readme
   - The file placement and `register` lifecycle in this repo's [`instrumentation.ts`](./instrumentation.ts) follow this API contract, including runtime targeting via `NEXT_RUNTIME`.
 - [Vercel: OpenTelemetry for Vercel and Next.js](https://vercel.com/docs/observability/otel-overview)
   - The repo uses `@vercel/otel` as the OpenTelemetry registration layer before adding the demo-specific startup signal.
+- [hqhq1025/skill-optimizer](https://github.com/hqhq1025/skill-optimizer)
+  - We use this skill to audit and improve `nextjs-observability-harness` from observed agent behavior, not just static review.
 - [VictoriaLogs](https://github.com/VictoriaMetrics/VictoriaLogs)
   - Structured log storage and query engine used here as the log proof surface for journey and startup validation.
 - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)

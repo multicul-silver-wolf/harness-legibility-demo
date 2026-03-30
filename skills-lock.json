@@ -5,6 +5,11 @@
       "source": "multicul-silver-wolf/agent-docs-system-skill",
       "sourceType": "github",
       "computedHash": "6ea98537121955e60c52674347455887a0878046314e33d8f5162ee7de2637d5"
+    },
+    "skill-optimizer": {
+      "source": "hqhq1025/skill-optimizer",
+      "sourceType": "github",
+      "computedHash": "20b5e6b23470ea6458e702759c9a2d1d9481847d49435e3e3586c1079a499b34"
     }
   }
 }

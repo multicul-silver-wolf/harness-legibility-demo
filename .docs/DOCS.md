@@ -1,7 +1,7 @@
 ---
 title: Project Docs System
 description: Cross-domain durable knowledge for the harness-legibility-demo repository.
-updateAt: 2026-03-30
+updateAt: 2026-03-31
 ---
 
 # How To Use
@@ -17,6 +17,7 @@ updateAt: 2026-03-30
 - Shared telemetry code lives under [`src/lib/observability`](../src/lib/observability), with [`instrumentation.ts`](../instrumentation.ts), [`src/app/api/metrics/route.ts`](../src/app/api/metrics/route.ts), and [`src/app/api/observability/journey/route.ts`](../src/app/api/observability/journey/route.ts) as stable app-facing entry points.
 - The repository now treats the README example prompts as an executable acceptance contract via [`npm run smoke:readme`](../package.json) and [`scripts/readme-smoke.js`](../scripts/readme-smoke.js), not just as illustrative prose.
 - Repo-local agent skills live under [`.agents/skills`](../.agents/skills); when adding or updating a skill, keep `SKILL.md` and `agents/openai.yaml` aligned, validate the skill folder, and document non-obvious maintenance rules in `.docs/agents/`.
+- Experiment observations and skill audit write-ups live under [`.docs/observations`](./observations/index.md); use that domain for repeatable findings from agent trial runs rather than mixing them into feature docs.
 - Runtime stack is `next@16.2.1` with `react@19.2.4` and `react-dom@19.2.4`; treat framework behavior as Next 16 specific.
 - Package management is currently npm-based and the lockfile of record is [`package-lock.json`](../package-lock.json).
 - Primary app code lives under [`src/app`](../src/app); this repository currently uses the App Router only.

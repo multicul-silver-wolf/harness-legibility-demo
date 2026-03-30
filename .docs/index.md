@@ -1,7 +1,7 @@
 ---
 title: Docs Index
 description: First-level map for repository-specific durable knowledge.
-updateAt: 2026-03-30
+updateAt: 2026-03-31
 ---
 
 # How To Use
@@ -12,5 +12,6 @@ updateAt: 2026-03-30
 # Domains
 
 - [agents](./agents/index.md): Consult for repo-local agent skills, how they are validated, and how durable skill maintenance is documented under `.agents/skills/`.
+- [observations](./observations/index.md): Consult for experiment notes, skill audits, and concrete behavior observed while validating this harness with real agent runs.
 - [observability](./observability/index.md): Consult for the local observability stack, telemetry signals, query contracts, and executable smoke-runner workflow in `src/lib/observability`, `src/app/api`, `instrumentation.ts`, and `scripts/`.
 - [frontend](./frontend/index.md): Consult for App Router structure, page entry points, styling surfaces, and frontend testing workflows in `src/app`.
