@@ -1,0 +1,4 @@
+interface:
+  display_name: "Next.js Observability Harness"
+  short_description: "Bootstrap and verify a Next.js observability harness"
+  default_prompt: "Use $nextjs-observability-harness to add this repository's observability harness workflow and lightweight validation path."

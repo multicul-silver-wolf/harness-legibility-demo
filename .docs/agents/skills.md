@@ -1,0 +1,23 @@
+---
+title: Repo Local Skills
+description: Durable notes for repository-specific skills stored under .agents/skills.
+updateAt: 2026-03-30
+---
+
+# Scope
+
+- Covers [`.agents/skills/project-docs-system/SKILL.md`](../../.agents/skills/project-docs-system/SKILL.md), [`.agents/skills/nextjs-observability-harness/SKILL.md`](../../.agents/skills/nextjs-observability-harness/SKILL.md), and their bundled resources.
+- Use this doc when adding a new repo-local skill, changing an existing skill's workflow, or updating validation and acceptance expectations for those skills.
+
+# Current Subdomain Docs
+
+- Repo-local skills should stay narrow and procedural: keep trigger logic in SKILL frontmatter, keep larger implementation details in `references/`, and store deterministic helpers in `scripts/`.
+- Every repo-local skill should keep `SKILL.md` aligned with `agents/openai.yaml`; if the skill purpose or default prompt changes, update both in the same change.
+- Validate every repo-local skill with the `skill-creator` quick validator after editing the skill folder.
+- When a skill ships helper scripts, run at least one realistic invocation of the script before considering the skill done.
+- `nextjs-observability-harness` is the repository's reusable guide for scaffolding the demo-style telemetry harness into another Next.js repository, with a bundled validator that supports static checks and optional runtime checks.
+
+# Update Triggers
+
+- Update this file when repo-local skills are added, removed, or renamed.
+- Update this file when a skill changes its validation contract, acceptance flow, or bundled helper script expectations.

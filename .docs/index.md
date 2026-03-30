@@ -11,5 +11,6 @@ updateAt: 2026-03-30
 
 # Domains
 
+- [agents](./agents/index.md): Consult for repo-local agent skills, how they are validated, and how durable skill maintenance is documented under `.agents/skills/`.
 - [observability](./observability/index.md): Consult for the local observability stack, telemetry signals, query contracts, and executable smoke-runner workflow in `src/lib/observability`, `src/app/api`, `instrumentation.ts`, and `scripts/`.
 - [frontend](./frontend/index.md): Consult for App Router structure, page entry points, styling surfaces, and frontend testing workflows in `src/app`.
