@@ -39,59 +39,19 @@ const DEFAULT_CONFIG = {
 };
 
 const FILE_RULES = {
-  instrumentation: [
-    /registerOTel/,
-    /recordStartupSignal/,
-    /NEXT_RUNTIME/,
-  ],
-  journeys: [
-    /JOURNEY_TELEMETRY_ENDPOINT/,
-    /isCanonicalJourney/,
-  ],
-  logger: [
-    /OBSERVABILITY_LOGS_ENDPOINT|VictoriaLogs/,
-  ],
-  metrics: [
-    /demo_app_startup_duration_ms/,
-    /demo_journey_runs_total/,
-  ],
-  tracing: [
-    /service\.name/,
-    /stack_id/,
-    /journey/,
-  ],
-  runtime: [
-    /recordStartupSignal/,
-    /recordJourneySignal/,
-  ],
-  stackContext: [
-    /stackId|stack_id/,
-    /worktreeId|worktree_id/,
-  ],
-  stackBootstrap: [
-    /OTEL_EXPORTER_OTLP_TRACES_ENDPOINT/,
-    /promscrape/,
-  ],
-  queryLogs: [
-    /queryLogs/,
-    /VictoriaLogs/,
-  ],
-  queryMetrics: [
-    /queryMetrics/,
-    /VictoriaMetrics/,
-  ],
-  queryTraces: [
-    /queryTraces/,
-    /VictoriaTraces|Jaeger/,
-  ],
-  metricsRoute: [
-    /renderMetrics/,
-    /text\/plain/,
-  ],
-  journeyRoute: [
-    /recordJourneySignal/,
-    /invalid_journey/,
-  ],
+  instrumentation: [/registerOTel/, /recordStartupSignal/, /NEXT_RUNTIME/],
+  journeys: [/JOURNEY_TELEMETRY_ENDPOINT/, /isCanonicalJourney/],
+  logger: [/OBSERVABILITY_LOGS_ENDPOINT|VictoriaLogs/],
+  metrics: [/demo_app_startup_duration_ms/, /demo_journey_runs_total/],
+  tracing: [/service\.name/, /stack_id/, /journey/],
+  runtime: [/recordStartupSignal/, /recordJourneySignal/],
+  stackContext: [/stackId|stack_id/, /worktreeId|worktree_id/],
+  stackBootstrap: [/OTEL_EXPORTER_OTLP_TRACES_ENDPOINT/, /promscrape/],
+  queryLogs: [/queryLogs/, /VictoriaLogs/],
+  queryMetrics: [/queryMetrics/, /VictoriaMetrics/],
+  queryTraces: [/queryTraces/, /VictoriaTraces|Jaeger/],
+  metricsRoute: [/renderMetrics/, /text\/plain/],
+  journeyRoute: [/recordJourneySignal/, /invalid_journey/],
   stackUp: [
     /victoria-logs/i,
     /victoria-metrics/i,
@@ -240,7 +200,9 @@ function assertJourneys(repoRoot, config, failures, passes) {
   }
 
   const text = readText(journeysPath);
-  const missingJourneys = config.journeys.filter((journey) => !text.includes(journey));
+  const missingJourneys = config.journeys.filter(
+    (journey) => !text.includes(journey),
+  );
   if (missingJourneys.length > 0) {
     failures.push(
       `${config.paths.journeys} is missing canonical journeys: ${missingJourneys.join(", ")}`,
@@ -260,7 +222,9 @@ function assertJourneys(repoRoot, config, failures, passes) {
 
 async function assertRuntime(appUrl, config, failures, passes) {
   if (typeof fetch !== "function") {
-    failures.push("current Node runtime does not provide fetch for runtime validation");
+    failures.push(
+      "current Node runtime does not provide fetch for runtime validation",
+    );
     return;
   }
 
@@ -305,7 +269,9 @@ async function assertRuntime(appUrl, config, failures, passes) {
   });
 
   if (![200, 202].includes(journeyResponse.status)) {
-    failures.push(`${journeyUrl} returned unexpected status ${journeyResponse.status}`);
+    failures.push(
+      `${journeyUrl} returned unexpected status ${journeyResponse.status}`,
+    );
     return;
   }
 
@@ -314,7 +280,9 @@ async function assertRuntime(appUrl, config, failures, passes) {
   const afterJourneyMetrics = await fetch(metricsUrl);
   const afterJourneyText = await afterJourneyMetrics.text();
   if (!afterJourneyMetrics.ok) {
-    failures.push(`${metricsUrl} failed after journey replay with ${afterJourneyMetrics.status}`);
+    failures.push(
+      `${metricsUrl} failed after journey replay with ${afterJourneyMetrics.status}`,
+    );
     return;
   }
 
@@ -353,7 +321,9 @@ async function main() {
       failures.push(`runtime validation failed: ${error.message}`);
     }
   } else {
-    passes.push("runtime validation skipped because --app-url was not provided");
+    passes.push(
+      "runtime validation skipped because --app-url was not provided",
+    );
   }
 
   for (const message of passes) {

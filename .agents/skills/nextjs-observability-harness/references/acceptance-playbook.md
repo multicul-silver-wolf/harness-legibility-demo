@@ -44,6 +44,12 @@ Only override what changed; the validator fills the rest from defaults.
 3. Repo-native validation
    - Add `npm run build`, `npm run test`, or smoke scripts only after the bundled validator passes.
 
+## Project Install Note
+
+- Project-level `npx skills` installs may create `.agents/` plus agent-specific directories such as `.claude/`.
+- If the target repository runs lint or formatting tools across the whole tree, decide explicitly whether those directories are part of the lint surface or should be ignored.
+- The bundled validator script is real repository content once installed; do not assume repo-wide checks will skip it automatically.
+
 ## Acceptance Prompt Patterns
 
 - For fuller user-style prompt examples, read [example-prompts.md](./example-prompts.md).
