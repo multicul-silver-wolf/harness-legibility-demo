@@ -12,3 +12,4 @@ updateAt: 2026-03-31
 # Subdomains
 
 - [experiment-01-skill-optimizer-audit](./experiment-01-skill-optimizer-audit.md): Audit of `nextjs-observability-harness` after the first fresh-repo experiment, using `skill-optimizer` as the analysis framework.
+- [experiment-02-skill-optimizer-audit](./experiment-02-skill-optimizer-audit.md): Audit of `nextjs-observability-harness` after the second fresh-repo experiment, with emphasis on the repaired lint surface and the remaining `stack-up.sh` environment caveat.
