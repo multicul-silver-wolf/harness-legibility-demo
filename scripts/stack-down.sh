@@ -38,6 +38,28 @@ EOF
 
 storage_root="$repo_root/.observability/$stack_id"
 
+remove_storage_root() {
+  local target="$1"
+  local attempt
+
+  if [[ ! -e "$target" ]]; then
+    return 0
+  fi
+
+  for attempt in $(seq 1 10); do
+    rm -rf "$target" 2>/dev/null || true
+
+    if [[ ! -e "$target" ]]; then
+      return 0
+    fi
+
+    sleep 0.1
+  done
+
+  printf '%s\n' "failed to remove stack storage root: $target" >&2
+  exit 1
+}
+
 stop_pid_file() {
   local pid_file="$1"
 
@@ -78,6 +100,6 @@ stop_pid_file "$storage_root/pids/victoria-logs.pid"
 stop_pid_file "$storage_root/pids/victoria-metrics.pid"
 stop_pid_file "$storage_root/pids/victoria-traces.pid"
 
-rm -rf "$storage_root"
+remove_storage_root "$storage_root"
 
 printf '%s\n' "stack down complete"
