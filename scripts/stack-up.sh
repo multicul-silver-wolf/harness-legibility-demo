@@ -141,20 +141,22 @@ scrape_configs:
 EOF
 
 cat >"$storage_root/env" <<EOF
-STACK_ID=${stack_id}
-WORKTREE_ID=${worktree_id}
-STACK_STORAGE_ROOT=${storage_root}
-VICTORIALOGS_PORT=10528
-VICTORIAMETRICS_PORT=18428
-VICTORITRACES_PORT=11428
-OBSERVABILITY_SERVICE_NAME=${service_name}
-OBSERVABILITY_LOGS_ENDPOINT=${logs_endpoint}
-OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${traces_endpoint}
-OTEL_SERVICE_NAME=${otel_service_name}
-NEXTJS_METRICS_TARGET=${metrics_target}
-VICTORIA_LOGS_BIN=${victoria_logs_bin}
-VICTORIA_METRICS_BIN=${victoria_metrics_bin}
-VICTORIA_TRACES_BIN=${victoria_traces_bin}
+export STACK_ID=${stack_id}
+export WORKTREE_ID=${worktree_id}
+export STACK_STORAGE_ROOT=${storage_root}
+export VICTORIALOGS_PORT=10528
+export VICTORIAMETRICS_PORT=18428
+export VICTORITRACES_PORT=11428
+export OBSERVABILITY_SERVICE_NAME=${service_name}
+export OBSERVABILITY_LOGS_ENDPOINT=${logs_endpoint}
+export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${traces_endpoint}
+export OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
+export OTEL_SERVICE_NAME=${otel_service_name}
+export NEXTJS_METRICS_TARGET=${metrics_target}
+export OBSERVABILITY_METRICS_ENDPOINT=http://127.0.0.1:18428
+export VICTORIA_LOGS_BIN=${victoria_logs_bin}
+export VICTORIA_METRICS_BIN=${victoria_metrics_bin}
+export VICTORIA_TRACES_BIN=${victoria_traces_bin}
 EOF
 
 export STACK_ID="$stack_id"
@@ -166,8 +168,10 @@ export VICTORIATRACES_PORT=11428
 export OBSERVABILITY_SERVICE_NAME="$service_name"
 export OBSERVABILITY_LOGS_ENDPOINT="$logs_endpoint"
 export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="$traces_endpoint"
+export OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
 export OTEL_SERVICE_NAME="$otel_service_name"
 export NEXTJS_METRICS_TARGET="$metrics_target"
+export OBSERVABILITY_METRICS_ENDPOINT=http://127.0.0.1:18428
 export VICTORIA_LOGS_BIN="$victoria_logs_bin"
 export VICTORIA_METRICS_BIN="$victoria_metrics_bin"
 export VICTORIA_TRACES_BIN="$victoria_traces_bin"

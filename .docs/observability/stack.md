@@ -12,6 +12,7 @@ updateAt: 2026-03-30
 # Current Subdomain Docs
 
 - `scripts/stack-up.sh` derives a deterministic `stack_id` from the current worktree path, creates `.observability/<stack-id>`, and writes an env file for the current checkout.
+- The generated `.observability/<stack-id>/env` file is meant to be sourced before booting the app and therefore uses `export KEY=value` lines so OTEL and observability settings propagate to child processes such as `npm run dev` and `npm run start`.
 - The stack runs three local backends on fixed ports: VictoriaLogs on `10528`, VictoriaMetrics on `18428`, and VictoriaTraces on `11428`.
 - V1 wires the app directly to the Victoria services: logs ingest into VictoriaLogs, metrics are scraped from `/api/metrics` by VictoriaMetrics, and traces export directly to VictoriaTraces.
 - Stack storage, PID files, and process logs are isolated under `.observability/<stack-id>` so each worktree can be started and torn down independently.

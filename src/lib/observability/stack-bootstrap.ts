@@ -27,7 +27,7 @@ export type LocalProcessPlan = {
 };
 
 function envLine(key: string, value: string) {
-  return `${key}=${value}`;
+  return `export ${key}=${value}`;
 }
 
 function yamlQuote(value: string) {

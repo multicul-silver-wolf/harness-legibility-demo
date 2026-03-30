@@ -2,6 +2,11 @@
  * @vitest-environment node
  */
 
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { createStackContext } from "./stack-context";
@@ -29,6 +34,45 @@ describe("stack bootstrap helpers", () => {
     expect(env).toContain(
       "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://127.0.0.1:11428/insert/opentelemetry/v1/traces",
     );
+  });
+
+  it("renders a sourceable env file that exports OTEL settings to child processes", () => {
+    const context = createStackContext({
+      cwd: "/Users/openclaw/projects/Playground/harness-legibility-demo",
+      service: "harness-legibility-demo",
+    });
+
+    const env = buildAppObservabilityEnv(context);
+    const tempDir = mkdtempSync(path.join(tmpdir(), "observability-env-"));
+    const envFile = path.join(tempDir, "env");
+    writeFileSync(envFile, env);
+
+    const endpoint = execFileSync(
+      "zsh",
+      [
+        "-lc",
+        `source ${JSON.stringify(envFile)} && node -p 'process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT ?? "missing"'`,
+      ],
+      {
+        encoding: "utf8",
+      },
+    ).trim();
+
+    const protocol = execFileSync(
+      "zsh",
+      [
+        "-lc",
+        `source ${JSON.stringify(envFile)} && node -p 'process.env.OTEL_EXPORTER_OTLP_TRACES_PROTOCOL ?? "missing"'`,
+      ],
+      {
+        encoding: "utf8",
+      },
+    ).trim();
+
+    expect(endpoint).toBe(
+      "http://127.0.0.1:11428/insert/opentelemetry/v1/traces",
+    );
+    expect(protocol).toBe("http/protobuf");
   });
 
   it("renders a VictoriaMetrics scrape config for the Next.js metrics route", () => {
