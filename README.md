@@ -12,6 +12,27 @@
 - `VictoriaMetrics`：Prometheus 风格 metrics
 - `VictoriaTraces`：OTLP traces + Jaeger 查询 API
 
+## 这个仓库是给谁用的
+
+这个仓库适合三类人:
+
+- 正在做 agent / coding agent / harness engineering 实验的人
+- 想验证“代码改动之后，agent 能不能自己用运行时信号证明改动是对的”的人
+- 想搭一个最小本地 observability playground，用来练 logs / metrics / traces 查询和回归验证的人
+
+比较典型的使用场景:
+
+- 你在设计一个 agent 验证闭环，需要一个小而完整的 demo 看 agent 能不能自己启动服务、触发交互、再用 telemetry 给出结论
+- 你在研究“不要只看终端输出，要看真实运行时信号”这件事，想有一个仓库专门练 startup、journey、regression 这几类验证
+- 你想给团队演示 harness legibility 的价值，让大家看到一个 Next.js app 如何把 logs、metrics、traces 暴露成 agent 可用的证据面
+
+简单说，这个仓库是一个本地 agent-validation harness：
+
+- 人或 agent 先改代码
+- 再启动 app 和 observability stack
+- 然后通过 startup telemetry、journey logs、journey metrics、journey spans 来验证系统是否仍然按预期工作
+- 最后把这些信号当成“修改成功”的证据，而不是只靠终端里的一句 `Ready in ...`
+
 应用里目前已经接好了这些信号:
 
 - startup telemetry
