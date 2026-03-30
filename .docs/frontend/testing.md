@@ -1,7 +1,7 @@
 ---
 title: Frontend Testing
 description: Durable notes for the colocated Vitest workflow in this repository.
-updateAt: 2026-03-29
+updateAt: 2026-03-30
 ---
 
 # Scope
@@ -17,6 +17,7 @@ updateAt: 2026-03-29
 - [`vitest.config.ts`](../../vitest.config.ts) resolves the `@/` alias to `src`, so tests can import app code the same way the application does.
 - The demo pattern is [`src/app/components/tdd-cycle-demo.tsx`](../../src/app/components/tdd-cycle-demo.tsx) with [`src/app/components/tdd-cycle-demo.test.tsx`](../../src/app/components/tdd-cycle-demo.test.tsx).
 - Use `npm run test` for a single pass and `npm run test:watch` for local red-green-refactor loops.
+- The repository also has a slower acceptance layer through [`npm run smoke:readme`](../../package.json), which validates the README prompt contract against the running app and local observability stack rather than only checking isolated units.
 
 # Update Triggers
 

@@ -15,11 +15,13 @@ updateAt: 2026-03-30
 - The repository is a local observability harness paired with a colocated Vitest/TDD homepage; use [`scripts/stack-up.sh`](../scripts/stack-up.sh) and [`scripts/stack-down.sh`](../scripts/stack-down.sh) to manage the per-worktree observability stack.
 - Worktree-specific observability state lives under [`.observability/<stack-id>`](../.observability); `STACK_ID` and `WORKTREE_ID` isolate logs, metrics, and traces per checkout.
 - Shared telemetry code lives under [`src/lib/observability`](../src/lib/observability), with [`instrumentation.ts`](../instrumentation.ts), [`src/app/api/metrics/route.ts`](../src/app/api/metrics/route.ts), and [`src/app/api/observability/journey/route.ts`](../src/app/api/observability/journey/route.ts) as stable app-facing entry points.
+- The repository now treats the README example prompts as an executable acceptance contract via [`npm run smoke:readme`](../package.json) and [`scripts/readme-smoke.js`](../scripts/readme-smoke.js), not just as illustrative prose.
 - Runtime stack is `next@16.2.1` with `react@19.2.4` and `react-dom@19.2.4`; treat framework behavior as Next 16 specific.
 - Package management is currently npm-based and the lockfile of record is [`package-lock.json`](../package-lock.json).
 - Primary app code lives under [`src/app`](../src/app); this repository currently uses the App Router only.
 - Styling starts in [`src/app/globals.css`](../src/app/globals.css) via `@import "tailwindcss"` and shared CSS custom properties.
 - Unit and component tests are colocated with their targets using `*.test.ts` and `*.test.tsx` file names.
+- Verification currently has two durable layers: fast Vitest coverage via `npm run test`, and a slower end-to-end harness check via `npm run smoke:readme`.
 - The homepage now acts as a lightweight testing entry point that explains the Vitest workflow and renders a small interactive TDD cycle demo.
 
 # Docs Rules

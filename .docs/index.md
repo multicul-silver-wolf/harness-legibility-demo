@@ -11,5 +11,5 @@ updateAt: 2026-03-30
 
 # Domains
 
-- [observability](./observability/index.md): Consult for the local observability stack, telemetry signals, and query contracts in `src/lib/observability`, `src/app/api`, `instrumentation.ts`, and `scripts/stack-*.sh`.
-- [frontend](./frontend/index.md): Consult for App Router structure, page entry points, and styling surfaces in `src/app`.
+- [observability](./observability/index.md): Consult for the local observability stack, telemetry signals, query contracts, and executable smoke-runner workflow in `src/lib/observability`, `src/app/api`, `instrumentation.ts`, and `scripts/`.
+- [frontend](./frontend/index.md): Consult for App Router structure, page entry points, styling surfaces, and frontend testing workflows in `src/app`.
