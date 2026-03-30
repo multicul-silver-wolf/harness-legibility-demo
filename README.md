@@ -119,6 +119,49 @@ This runs a deterministic sequence intended for harness validation and README-le
 
 ---
 
+## Import The Skill
+
+This repository also ships a reusable skill at `.agents/skills/nextjs-observability-harness` for Codex, Claude Code, and other skill-aware agents.
+
+Recommended installation method:
+
+```bash
+npx skills add multicul-silver-wolf/harness-legibility-demo \
+  --skill nextjs-observability-harness \
+  --agent codex \
+  -y
+```
+
+Prefer to choose the target agent interactively:
+
+```bash
+npx skills add multicul-silver-wolf/harness-legibility-demo \
+  --skill nextjs-observability-harness
+```
+
+Install it for every supported local agent:
+
+```bash
+npx skills add multicul-silver-wolf/harness-legibility-demo \
+  --skill nextjs-observability-harness \
+  --agent '*' \
+  -y
+```
+
+Useful variants:
+
+- Add `-g` to install globally instead of only for the current project.
+- Use `npx skills add multicul-silver-wolf/harness-legibility-demo --list` to inspect the skills in this repository before installing.
+- The skill teaches an agent how to explain the harness, discuss file boundaries before editing, scaffold the observability stack, run the bundled lightweight validator, and hand off acceptance prompts.
+
+After installation, invoke it with a prompt such as:
+
+```text
+Use $nextjs-observability-harness to add the demo-style observability harness to this Next.js repository. Start by explaining what VictoriaLogs, VictoriaMetrics, and VictoriaTraces each do, then discuss the implementation boundary before editing anything.
+```
+
+---
+
 ## Useful query endpoints
 
 - App metrics endpoint: `http://localhost:3000/api/metrics`
@@ -183,6 +226,12 @@ npm run smoke:readme
 
 - [OpenAI: Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)
   - Core idea: agents should not stop at code generation; they should use runtime evidence to prove a change is correct.
+- [Next.js: How to set up instrumentation](https://nextjs.org/docs/app/guides/instrumentation)
+  - `instrumentation.ts` follows the App Router startup hook pattern here: root-level `instrumentation.ts`, exported `register()`, and runtime-aware startup work.
+- [Next.js: instrumentation.js file convention](https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation)
+  - The file placement and `register` lifecycle in this repo's [`instrumentation.ts`](./instrumentation.ts) follow this API contract, including runtime targeting via `NEXT_RUNTIME`.
+- [Vercel: OpenTelemetry for Vercel and Next.js](https://vercel.com/docs/observability/otel-overview)
+  - The repo uses `@vercel/otel` as the OpenTelemetry registration layer before adding the demo-specific startup signal.
 - [VictoriaLogs](https://github.com/VictoriaMetrics/VictoriaLogs)
   - Structured log storage and query engine used here as the log proof surface for journey and startup validation.
 - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)
