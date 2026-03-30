@@ -42,6 +42,12 @@ source .observability/<stack-id>/env
 npm run dev
 ```
 
+如果你想直接把 README 里的示例 prompt 当成一轮可重复的端到端验收，可以运行:
+
+```bash
+npm run smoke:readme
+```
+
 4. 打开首页并触发几次交互
 
 - `Advance cycle`
@@ -134,6 +140,7 @@ Treat this repo like an agent-validation harness. After your change, use the loc
 ```bash
 npx vitest run
 npm run build
+npm run smoke:readme
 ```
 
 ## Shut Down

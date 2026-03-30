@@ -63,9 +63,15 @@ resolve_binary() {
   printf '%s\n' ""
 }
 
-victoria_logs_bin="$(resolve_binary "${VICTORIA_LOGS_BIN:-}" victoria-logs-prod victorialogs)"
-victoria_metrics_bin="$(resolve_binary "${VICTORIA_METRICS_BIN:-}" victoria-metrics-prod victoriametrics)"
-victoria_traces_bin="$(resolve_binary "${VICTORIA_TRACES_BIN:-}" victoria-traces-prod victoria-traces)"
+victoria_logs_bin="$(resolve_binary "${VICTORIA_LOGS_BIN:-}" victoria-logs-prod victoria-logs victorialogs)"
+victoria_metrics_bin="$(resolve_binary "${VICTORIA_METRICS_BIN:-}" victoria-metrics-prod victoria-metrics victoriametrics)"
+victoria_traces_bin="$(
+  resolve_binary \
+    "${VICTORIA_TRACES_BIN:-}" \
+    "$repo_root/.observability/bin/victoria-traces-prod" \
+    victoria-traces-prod \
+    victoria-traces
+)"
 
 require_binary() {
   local binary="$1"
@@ -82,14 +88,6 @@ start_process() {
 
   local log_file="$storage_root/process-logs/${name}.log"
   local handle_file="$storage_root/pids/${name}.pid"
-
-  if [[ "$(uname -s)" == "Darwin" ]] && command -v launchctl >/dev/null 2>&1; then
-    local label="dev.harness-legibility.${stack_id}.${name}"
-    launchctl remove "$label" >/dev/null 2>&1 || true
-    launchctl submit -l "$label" -o "$log_file" -e "$log_file" -- "$binary" "$@"
-    printf 'launchctl:%s\n' "$label" >"$handle_file"
-    return 0
-  fi
 
   nohup "$binary" "$@" >"$log_file" 2>&1 </dev/null &
   printf 'pid:%s\n' "$!" >"$handle_file"

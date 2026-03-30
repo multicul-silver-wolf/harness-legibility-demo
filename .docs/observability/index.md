@@ -6,7 +6,7 @@ updateAt: 2026-03-30
 
 # How To Use
 
-- Use this domain for work under [`src/lib/observability`](../../src/lib/observability), [`src/app/api/metrics/route.ts`](../../src/app/api/metrics/route.ts), [`src/app/api/observability/journey/route.ts`](../../src/app/api/observability/journey/route.ts), [`instrumentation.ts`](../../instrumentation.ts), [`scripts/stack-up.sh`](../../scripts/stack-up.sh), and [`scripts/stack-down.sh`](../../scripts/stack-down.sh).
+- Use this domain for work under [`src/lib/observability`](../../src/lib/observability), [`src/app/api/metrics/route.ts`](../../src/app/api/metrics/route.ts), [`src/app/api/observability/journey/route.ts`](../../src/app/api/observability/journey/route.ts), [`instrumentation.ts`](../../instrumentation.ts), [`scripts/stack-up.sh`](../../scripts/stack-up.sh), [`scripts/stack-down.sh`](../../scripts/stack-down.sh), and [`scripts/readme-smoke.js`](../../scripts/readme-smoke.js).
 - Read the subdomain docs before changing stack lifecycle, emitted signals, or query wrappers.
 
 # Subdomains

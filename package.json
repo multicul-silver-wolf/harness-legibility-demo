@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "smoke:readme": "node scripts/readme-smoke.js",
+    "smoke:readme:verbose": "node scripts/readme-smoke.js --verbose",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "lint": "biome check",
