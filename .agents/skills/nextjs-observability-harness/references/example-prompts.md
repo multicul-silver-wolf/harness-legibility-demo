@@ -55,13 +55,19 @@ Use $nextjs-observability-harness to run the canonical journeys and report the l
 ### Dev Server Three-Panel Proof
 
 ```text
-Use $nextjs-observability-harness to boot the local stack, run this repo with npm run dev, and prove one real home.initial_load journey with concrete evidence from VictoriaLogs, VictoriaMetrics, and VictoriaTraces. Keep the proof tied to the active dev server, not a production build.
+Use $nextjs-observability-harness to use the repo's local stack path or another stable local orchestration method, run this repo with npm run dev, and prove one real home.initial_load journey with concrete evidence from VictoriaLogs, VictoriaMetrics, and VictoriaTraces. Keep the proof tied to the active dev server, not a production build.
 ```
 
 ### Handoff Acceptance
 
 ```text
 Use $nextjs-observability-harness to finish the task only after you personally run one real end-to-end proof across logs, metrics, and traces. Use a concrete startup signal or journey, tie the evidence together with a shared identifier, and report whether the result is full acceptance or only partial acceptance.
+```
+
+### Stable Proof Without Stack-Up Assumptions
+
+```text
+Use $nextjs-observability-harness to prove logs, metrics, and traces in this repo, but do not assume scripts/stack-up.sh is the only valid path. If another stable local method is better in this environment, use it and explain what you chose.
 ```
 
 ### Structured Logs Check

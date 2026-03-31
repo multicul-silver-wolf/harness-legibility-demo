@@ -1,4 +1,4 @@
 interface:
   display_name: "Next.js Observability Harness"
   short_description: "Bootstrap and verify a fresh-repo Next.js observability harness"
-  default_prompt: "Use $nextjs-observability-harness to bootstrap this repository's observability harness, prefer repo-local stack binaries when present, and verify it with the lightweight validation path."
+  default_prompt: "Use $nextjs-observability-harness to bootstrap this repository's observability harness, prefer repo-local stack binaries when present, and verify it with lightweight validation plus one real logs-metrics-traces proof by any stable local method."

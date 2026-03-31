@@ -31,7 +31,7 @@
 - `src/app/api/observability/journey/route.ts`
   - Validate canonical journeys and record a journey run through runtime helpers.
 - `scripts/stack-up.sh`
-  - Start VictoriaLogs, VictoriaMetrics, and VictoriaTraces for the current worktree and emit a sourceable env file.
+  - Optional convenience entrypoint that starts VictoriaLogs, VictoriaMetrics, and VictoriaTraces for the current worktree and emits a sourceable env file.
 - `scripts/stack-down.sh`
   - Stop the local stack and clean the worktree-specific storage root.
 
@@ -60,6 +60,7 @@ Keep these names stable unless the developer explicitly changes the proof contra
 
 ## Stack Contract
 
+- The proof goal is stable local evidence, not a specific launcher implementation.
 - Default ports:
   - VictoriaLogs: `10528`
   - VictoriaMetrics: `18428`
@@ -73,6 +74,7 @@ Keep these names stable unless the developer explicitly changes the proof contra
   - `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL`
   - `OTEL_SERVICE_NAME`
 - Keep stack storage isolated under `.observability/<stack-id>` or an agreed equivalent.
+- If the repo ships `stack-up.sh`, keep it aligned with the env exports above; if another supervisor is used, preserve the same signal contract.
 
 ## Maintenance Triggers
 

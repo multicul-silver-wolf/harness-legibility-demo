@@ -56,6 +56,13 @@ Only override what changed; the validator fills the rest from defaults.
 - A green lightweight validator is not enough for full acceptance when the app can run.
 - If one backend still has no evidence, report partial acceptance instead of presenting the harness as fully accepted.
 
+## Operational Principle
+
+- The real requirement is stable evidence across logs, metrics, and traces, not loyalty to one launcher script.
+- Treat `scripts/stack-up.sh` as a repo convenience entrypoint when it exists and works.
+- If detached background processes are unreliable, use another stable local method such as a persistent shell, PTY, or foreground supervisor.
+- Report which orchestration path you used so the developer understands whether the proof came from the repo default path or a temporary workaround.
+
 ## Isolation Note
 
 - If you can launch the agent from inside the target repository, prefer that over spawning from a parent repo thread.
@@ -71,6 +78,7 @@ Only override what changed; the validator fills the rest from defaults.
 
 - Some agent execution environments do not preserve detached background processes reliably, even when `nohup` is used.
 - If `stack-up.sh` lays out env and storage correctly but the Victoria services do not stay alive, keep the stack in a persistent shell or PTY for the duration of runtime validation and report that workaround in the handoff.
+- Do not block full proof on fixing detached startup if another stable method can produce the required evidence.
 
 ## Project Install Note
 
@@ -82,11 +90,11 @@ Only override what changed; the validator fills the rest from defaults.
 
 - For fuller user-style prompt examples, read [example-prompts.md](./example-prompts.md).
 - Startup proof
-  - `Use $nextjs-observability-harness to boot the stack and app, then prove startup telemetry exists with one startup metric and one startup trace.`
+  - `Use $nextjs-observability-harness to bring up whatever local services are required for startup proof, then prove startup telemetry exists with one startup metric and one startup trace.`
 - Journey proof
   - `Use $nextjs-observability-harness to replay the canonical journeys and report the newest log, metric, and span evidence for each one.`
 - Dev-mode proof
-  - `Use $nextjs-observability-harness to boot the local stack, run the app with npm run dev, and prove one real journey with a log, a metric, and a trace from the active dev server.`
+  - `Use $nextjs-observability-harness to use the repo's local stack path or another stable local orchestration method, run the app with npm run dev, and prove one real journey with a log, a metric, and a trace from the active dev server.`
 - Regression proof
   - `Use $nextjs-observability-harness after your code change and prove the harness still emits startup telemetry, journey logs, journey metrics, and journey traces.`
 
