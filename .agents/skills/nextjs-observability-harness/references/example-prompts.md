@@ -12,6 +12,12 @@ Use these when a developer is asking an agent to design or modify the harness.
 Use $nextjs-observability-harness to add the demo-style observability harness to this Next.js repository. Start by explaining what VictoriaLogs, VictoriaMetrics, and VictoriaTraces each do, then discuss the implementation boundary and list every file you plan to create or change before editing anything. After I approve, implement the scaffold and run the bundled lightweight validator.
 ```
 
+### Fresh Repo With Local Binaries
+
+```text
+Use $nextjs-observability-harness to bootstrap the harness in this fresh Next.js repo. Keep any Victoria binaries inside this repository under .observability/bin instead of relying on machine-installed binaries. Explain the boundary first, wait for approval, then implement and validate.
+```
+
 ### Custom Layout Initialization
 
 ```text
@@ -44,6 +50,12 @@ Use $nextjs-observability-harness to boot the local stack and app, then verify s
 
 ```text
 Use $nextjs-observability-harness to run the canonical journeys and report the latest span duration for home.initial_load, demo.component_interaction, diagnostics.view, and action.submit. Flag any span over 2s with trace evidence.
+```
+
+### Dev Server Three-Panel Proof
+
+```text
+Use $nextjs-observability-harness to boot the local stack, run this repo with npm run dev, and prove one real home.initial_load journey with concrete evidence from VictoriaLogs, VictoriaMetrics, and VictoriaTraces. Keep the proof tied to the active dev server, not a production build.
 ```
 
 ### Structured Logs Check

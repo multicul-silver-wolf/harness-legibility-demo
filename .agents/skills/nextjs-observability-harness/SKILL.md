@@ -1,19 +1,23 @@
 ---
 name: nextjs-observability-harness
-description: "Use when initializing or repairing a demo-style Next.js App Router observability harness with VictoriaLogs, VictoriaMetrics, VictoriaTraces, stack lifecycle scripts, and lightweight runtime validation."
+description: "Use when bootstrapping or repairing a demo-style Next.js App Router observability harness in a fresh repo, with VictoriaLogs, VictoriaMetrics, VictoriaTraces, stack lifecycle scripts, and lightweight runtime validation."
 ---
 
 # Next.js Observability Harness
 
-Build a local runtime-evidence loop for a Next.js repository so agents can prove behavior with logs, metrics, and traces instead of terminal output alone.
+## Overview
+
+Build a local runtime-evidence loop for a Next.js repository so agents can prove behavior with logs, metrics, and traces instead of terminal output alone. Use it for fresh repos or partially instrumented repos that need the same demo-style harness and proof workflow.
 
 ## Rules
 
 - Read the target repository before proposing changes.
 - Read the local Next.js instrumentation docs in `node_modules/next/dist/docs/` before editing `instrumentation.ts` or App Router entry points.
 - Explain VictoriaLogs, VictoriaMetrics, and VictoriaTraces in developer terms before editing.
+- Prefer repo-local stack binaries under `.observability/bin` when present; do not assume system-installed Victoria binaries.
 - Stop after the boundary discussion and wait for approval on net-new scaffold work or visible architectural changes.
 - Run the bundled validator before repo-native checks.
+- Default to `npm run dev` for local runtime proof unless the developer explicitly asks for production-mode verification.
 - Report skipped validation layers and the reason.
 
 ## Workflow
@@ -43,6 +47,7 @@ Build a local runtime-evidence loop for a Next.js repository so agents can prove
    - If the app can run, also run:
      - `node scripts/validate-harness.js --repo /absolute/path/to/repo --app-url http://127.0.0.1:3000`
    - If the repository uses different paths, pass a JSON override file with `--layout`.
+   - For local harness acceptance, prefer `npm run dev` over `npm start` unless the developer asked for production-mode proof.
    - Run build, test, or smoke scripts only after the bundled validator passes.
 
 6. Hand off.

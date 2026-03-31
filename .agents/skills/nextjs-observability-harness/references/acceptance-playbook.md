@@ -41,8 +41,25 @@ Only override what changed; the validator fills the rest from defaults.
 2. Runtime baseline
    - `node scripts/validate-harness.js --repo /absolute/path/to/repo --app-url http://127.0.0.1:3000`
    - Use when the app is already running or easy to boot.
+   - For local development acceptance, default to `npm run dev` unless the developer explicitly asks for production-mode proof.
 3. Repo-native validation
    - Add `npm run build`, `npm run test`, or smoke scripts only after the bundled validator passes.
+
+## Isolation Note
+
+- If you can launch the agent from inside the target repository, prefer that over spawning from a parent repo thread.
+- A direct child-repo launch reduces context bleed from the source repository and makes it more likely the agent reasons only over the target repo plus the installed skill.
+
+## Local Stack Binary Rule
+
+- Prefer stack binaries from `.observability/bin` when that directory exists in the target repository.
+- Do not assume Homebrew, PATH-level, or machine-global Victoria binaries are available or acceptable.
+- If binaries are missing, call that out during boundary discussion instead of silently falling back to system paths.
+
+## Detached Process Caveat
+
+- Some agent execution environments do not preserve detached background processes reliably, even when `nohup` is used.
+- If `stack-up.sh` lays out env and storage correctly but the Victoria services do not stay alive, keep the stack in a persistent shell or PTY for the duration of runtime validation and report that workaround in the handoff.
 
 ## Project Install Note
 
@@ -57,6 +74,8 @@ Only override what changed; the validator fills the rest from defaults.
   - `Use $nextjs-observability-harness to boot the stack and app, then prove startup telemetry exists with one startup metric and one startup trace.`
 - Journey proof
   - `Use $nextjs-observability-harness to replay the canonical journeys and report the newest log, metric, and span evidence for each one.`
+- Dev-mode proof
+  - `Use $nextjs-observability-harness to boot the local stack, run the app with npm run dev, and prove one real journey with a log, a metric, and a trace from the active dev server.`
 - Regression proof
   - `Use $nextjs-observability-harness after your code change and prove the harness still emits startup telemetry, journey logs, journey metrics, and journey traces.`
 
