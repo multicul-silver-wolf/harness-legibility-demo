@@ -13,3 +13,4 @@ updateAt: 2026-03-31
 
 - [experiment-01-skill-optimizer-audit](./experiment-01-skill-optimizer-audit.md): Audit of `nextjs-observability-harness` after the first fresh-repo experiment, using `skill-optimizer` as the analysis framework.
 - [experiment-02-skill-optimizer-audit](./experiment-02-skill-optimizer-audit.md): Audit of `nextjs-observability-harness` after the second fresh-repo experiment, with emphasis on the repaired lint surface and the remaining `stack-up.sh` environment caveat.
+- [experiment-03-skill-optimizer-audit](./experiment-03-skill-optimizer-audit.md): Audit of `nextjs-observability-harness` after the standalone child-repo experiment, with emphasis on reduced context leakage, repo-local binaries, and dev-mode three-panel proof.
