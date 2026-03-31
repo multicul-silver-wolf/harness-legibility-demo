@@ -45,6 +45,17 @@ Only override what changed; the validator fills the rest from defaults.
 3. Repo-native validation
    - Add `npm run build`, `npm run test`, or smoke scripts only after the bundled validator passes.
 
+## End-To-End Acceptance
+
+- Before handoff, run one real proof that exercises all three backends:
+  - VictoriaLogs
+  - VictoriaMetrics
+  - VictoriaTraces
+- Use a concrete startup signal or one real journey such as `home.initial_load`.
+- Prefer evidence that can be tied together with the same `request_id`, `journey`, `stack_id`, or another explicit shared identifier.
+- A green lightweight validator is not enough for full acceptance when the app can run.
+- If one backend still has no evidence, report partial acceptance instead of presenting the harness as fully accepted.
+
 ## Isolation Note
 
 - If you can launch the agent from inside the target repository, prefer that over spawning from a parent repo thread.
@@ -85,5 +96,6 @@ Only override what changed; the validator fills the rest from defaults.
 - Files created or changed
 - Validation commands run
 - Pass or fail summary
+- Full or partial end-to-end acceptance status
 - Skipped checks with reason
 - One follow-up acceptance prompt

@@ -58,6 +58,12 @@ Use $nextjs-observability-harness to run the canonical journeys and report the l
 Use $nextjs-observability-harness to boot the local stack, run this repo with npm run dev, and prove one real home.initial_load journey with concrete evidence from VictoriaLogs, VictoriaMetrics, and VictoriaTraces. Keep the proof tied to the active dev server, not a production build.
 ```
 
+### Handoff Acceptance
+
+```text
+Use $nextjs-observability-harness to finish the task only after you personally run one real end-to-end proof across logs, metrics, and traces. Use a concrete startup signal or journey, tie the evidence together with a shared identifier, and report whether the result is full acceptance or only partial acceptance.
+```
+
 ### Structured Logs Check
 
 ```text

@@ -49,9 +49,12 @@ Build a local runtime-evidence loop for a Next.js repository so agents can prove
    - If the repository uses different paths, pass a JSON override file with `--layout`.
    - For local harness acceptance, prefer `npm run dev` over `npm start` unless the developer asked for production-mode proof.
    - Run build, test, or smoke scripts only after the bundled validator passes.
+   - Before final handoff, run one real end-to-end proof across VictoriaLogs, VictoriaMetrics, and VictoriaTraces using a concrete startup signal or journey.
+   - Report the exact evidence source for each backend; do not treat terminal output alone as acceptance.
 
 6. Hand off.
    - Summarize approved scope, files changed, validation commands, and pass or fail status.
+   - State whether end-to-end proof is full acceptance or partial acceptance.
    - Include one follow-up acceptance prompt another agent can run.
 
 ## Resources
