@@ -13,8 +13,9 @@ updateAt: 2026-03-29
 
 - Global styles begin with `@import "tailwindcss"` in [`src/app/globals.css`](../../src/app/globals.css), so Tailwind CSS v4 is wired in through CSS import rather than a legacy config file.
 - Shared color tokens are defined as `--background` and `--foreground` on `:root`, with dark-mode values switched through `prefers-color-scheme`.
-- The `@theme inline` block maps shared CSS variables to Tailwind theme tokens, including `--font-sans` and `--font-mono` from the root layout font variables.
-- [`src/app/layout.tsx`](../../src/app/layout.tsx) exposes Geist font variables on `<html>`, but [`src/app/globals.css`](../../src/app/globals.css) currently sets `body { font-family: Arial, Helvetica, sans-serif; }`; that means global body text does not automatically inherit Geist unless a utility class or CSS change overrides it.
+- The `@theme inline` block maps shared CSS variables to Tailwind theme tokens, including `--font-sans` and `--font-mono`.
+- [`src/app/layout.tsx`](../../src/app/layout.tsx) no longer imports remote `next/font/google` fonts during build; instead, [`src/app/globals.css`](../../src/app/globals.css) defines local system font stacks for `--font-geist-sans` and `--font-geist-mono`, which keeps offline builds and smoke runs deterministic.
+- Global body text now inherits `var(--font-geist-sans)` directly, so `body` and `font-sans` utilities share the same local font stack.
 - The homepage currently mixes global tokens with utility classes like `bg-zinc-50`, `dark:bg-black`, and `bg-foreground`, so future design work should decide whether colors should stay utility-driven or move into project-specific theme tokens.
 
 # Update Triggers

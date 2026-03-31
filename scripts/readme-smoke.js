@@ -100,8 +100,14 @@ function parseEnvFile(contents) {
 function deriveBinaryEnv() {
   const env = { ...process.env };
   const candidates = [
-    ["VICTORIA_LOGS_BIN", "/opt/homebrew/bin/victoria-logs"],
-    ["VICTORIA_METRICS_BIN", "/opt/homebrew/bin/victoria-metrics"],
+    [
+      "VICTORIA_LOGS_BIN",
+      path.join(repoRoot, ".observability", "bin", "victoria-logs"),
+    ],
+    [
+      "VICTORIA_METRICS_BIN",
+      path.join(repoRoot, ".observability", "bin", "victoria-metrics"),
+    ],
     [
       "VICTORIA_TRACES_BIN",
       path.join(repoRoot, ".observability", "bin", "victoria-traces-prod"),
@@ -270,15 +276,15 @@ async function queryTraces({ journey, limit = 100 } = {}) {
   url.searchParams.set("service", stackEnv.OTEL_SERVICE_NAME);
   url.searchParams.set("limit", String(limit));
 
+  const tags = {
+    stack_id: stackEnv.STACK_ID,
+  };
+
   if (journey) {
-    url.searchParams.set(
-      "tags",
-      JSON.stringify({
-        stack_id: stackEnv.STACK_ID,
-        journey,
-      }),
-    );
+    tags.journey = journey;
   }
+
+  url.searchParams.set("tags", JSON.stringify(tags));
 
   return fetchJson(url.toString());
 }

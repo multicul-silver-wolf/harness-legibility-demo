@@ -4,6 +4,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
+repo_bin_dir="$repo_root/.observability/bin"
 
 IFS=$'\t' read -r stack_id worktree_id <<EOF
 $(node <<'NODE'
@@ -63,14 +64,64 @@ resolve_binary() {
   printf '%s\n' ""
 }
 
-victoria_logs_bin="$(resolve_binary "${VICTORIA_LOGS_BIN:-}" victoria-logs-prod victoria-logs victorialogs)"
-victoria_metrics_bin="$(resolve_binary "${VICTORIA_METRICS_BIN:-}" victoria-metrics-prod victoria-metrics victoriametrics)"
+ensure_repo_local_binary() {
+  local source_path="$1"
+  local target_name="$2"
+  local target_path="$repo_bin_dir/$target_name"
+
+  mkdir -p "$repo_bin_dir"
+
+  if [[ -x "$target_path" ]]; then
+    printf '%s\n' "$target_path"
+    return 0
+  fi
+
+  if [[ -n "$source_path" && "$source_path" != */* ]]; then
+    source_path="$(command -v "$source_path" 2>/dev/null || true)"
+  fi
+
+  if [[ ! -x "$source_path" ]]; then
+    printf '%s\n' ""
+    return 0
+  fi
+
+  cp "$source_path" "$target_path"
+  chmod +x "$target_path"
+  printf '%s\n' "$target_path"
+}
+
+victoria_logs_source="$(
+  resolve_binary \
+    "${VICTORIA_LOGS_BIN:-}" \
+    "$repo_bin_dir/victoria-logs" \
+    "$repo_bin_dir/victoria-logs-prod" \
+    victoria-logs-prod \
+    victoria-logs \
+    victorialogs
+)"
+victoria_metrics_source="$(
+  resolve_binary \
+    "${VICTORIA_METRICS_BIN:-}" \
+    "$repo_bin_dir/victoria-metrics" \
+    "$repo_bin_dir/victoria-metrics-prod" \
+    victoria-metrics-prod \
+    victoria-metrics \
+    victoriametrics
+)"
 victoria_traces_bin="$(
   resolve_binary \
     "${VICTORIA_TRACES_BIN:-}" \
+    "$repo_bin_dir/victoria-traces" \
     "$repo_root/.observability/bin/victoria-traces-prod" \
     victoria-traces-prod \
     victoria-traces
+)"
+
+victoria_logs_bin="$(
+  ensure_repo_local_binary "$victoria_logs_source" "victoria-logs"
+)"
+victoria_metrics_bin="$(
+  ensure_repo_local_binary "$victoria_metrics_source" "victoria-metrics"
 )"
 
 require_binary() {
@@ -88,6 +139,14 @@ start_process() {
 
   local log_file="$storage_root/process-logs/${name}.log"
   local handle_file="$storage_root/pids/${name}.pid"
+  local label="com.openclaw.${stack_id}.${name}"
+
+  if command -v launchctl >/dev/null 2>&1; then
+    launchctl remove "$label" >/dev/null 2>&1 || true
+    launchctl submit -l "$label" -o "$log_file" -e "$log_file" -- "$binary" "$@"
+    printf 'launchctl:%s\n' "$label" >"$handle_file"
+    return 0
+  fi
 
   nohup "$binary" "$@" >"$log_file" 2>&1 </dev/null &
   printf 'pid:%s\n' "$!" >"$handle_file"
