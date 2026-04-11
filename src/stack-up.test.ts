@@ -4,8 +4,10 @@
 
 import { execFileSync } from "node:child_process";
 import {
+  accessSync,
   chmodSync,
   copyFileSync,
+  constants,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -17,8 +19,41 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+function readExport(envFile: string, key: string) {
+  const prefix = `export ${key}=`;
+  const line = envFile
+    .split("\n")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.startsWith(prefix));
+
+  expect(line).toBeTruthy();
+  return line!.slice(prefix.length);
+}
+
+function resolveExecutable(binary: string, searchPath: string) {
+  if (binary.includes(path.sep)) {
+    accessSync(binary, constants.X_OK);
+    return binary;
+  }
+
+  for (const directory of searchPath.split(path.delimiter)) {
+    if (!directory) {
+      continue;
+    }
+
+    const candidate = path.join(directory, binary);
+
+    try {
+      accessSync(candidate, constants.X_OK);
+      return candidate;
+    } catch {}
+  }
+
+  throw new Error(`Unable to resolve executable for ${binary}`);
+}
+
 describe("stack-up.sh", () => {
-  it("discovers Homebrew-style Victoria binaries and the repo-local traces binary without overrides", () => {
+  it("discovers runnable Victoria binaries without locking the env file to one source layout", () => {
     const workspaceRoot = path.resolve(import.meta.dirname, "..");
     const fixtureRoot = mkdtempSync(path.join(tmpdir(), "stack-up-fixture-"));
     const repoRoot = path.join(fixtureRoot, "repo");
@@ -92,11 +127,20 @@ printf 'Linux\\n'
 
     const envFile = readFileSync(envFilePath!, "utf8");
     const resolvedRepoRoot = path.join(realRepoRoot, "repo");
+    const pathValue = `${fakeBinDir}:${process.env.PATH ?? ""}`;
+    const logsBinary = readExport(envFile, "VICTORIA_LOGS_BIN");
+    const metricsBinary = readExport(envFile, "VICTORIA_METRICS_BIN");
+    const tracesBinary = readExport(envFile, "VICTORIA_TRACES_BIN");
 
-    expect(envFile).toContain("export VICTORIA_LOGS_BIN=victoria-logs");
-    expect(envFile).toContain("export VICTORIA_METRICS_BIN=victoria-metrics");
-    expect(envFile).toContain(
-      `export VICTORIA_TRACES_BIN=${path.join(resolvedRepoRoot, ".observability", "bin", "victoria-traces-prod")}`,
+    expect(path.basename(resolveExecutable(logsBinary, pathValue))).toBe(
+      "victoria-logs",
     );
+    expect(path.basename(resolveExecutable(metricsBinary, pathValue))).toBe(
+      "victoria-metrics",
+    );
+    expect(tracesBinary).toBe(
+      path.join(resolvedRepoRoot, ".observability", "bin", "victoria-traces-prod"),
+    );
+    expect(resolveExecutable(tracesBinary, pathValue)).toBe(tracesBinary);
   });
 });

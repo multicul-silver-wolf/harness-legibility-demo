@@ -1,7 +1,7 @@
 ---
 title: Observability Acceptance
 description: Durable notes for the executable README prompt suite and smoke-runner workflow.
-updateAt: 2026-03-30
+updateAt: 2026-04-12
 ---
 
 # Scope
@@ -15,6 +15,7 @@ updateAt: 2026-03-30
 - [`npm run smoke:readme`](../../package.json) is the canonical local entry point for running that contract, and `npm run smoke:readme:verbose` is the debugging variant.
 - The smoke runner always manages its own local stack lifecycle first by calling [`scripts/stack-down.sh`](../../scripts/stack-down.sh) and then [`scripts/stack-up.sh`](../../scripts/stack-up.sh) before it builds and starts the app.
 - Acceptance evidence must come from runtime signals rather than terminal output alone: startup checks require the startup metric and startup trace, while journey checks require matching logs, metrics, and spans.
+- The smoke runner intentionally keeps one representative prompt per repeated evidence surface instead of preserving multiple paraphrases that consume the same startup, journey, metrics, or regression payloads.
 - Canonical journey replay in the smoke suite uses the public [`/api/observability/journey`](../../src/app/api/observability/journey/route.ts) route rather than calling internal helper functions directly.
 - The regression portion of the smoke suite temporarily edits [`src/app/page.tsx`](../../src/app/page.tsx) by replacing the exact sentence `instead of a separate test tree.` with `instead of a split test tree.`, then restores the file and rebuilds.
 - Failures during stack bootstrap should surface the per-process excerpts under [`.observability/<stack-id>/process-logs`](../../.observability) so the runner reports why Victoria services did not come up.

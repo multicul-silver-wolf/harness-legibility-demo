@@ -43,6 +43,7 @@ Build a local evidence loop so agents can prove behavior with logs, metrics, and
      - `node scripts/validate-harness.js --repo /absolute/path/to/repo`
    - If the app can run, also run:
      - `node scripts/validate-harness.js --repo /absolute/path/to/repo --app-url http://127.0.0.1:3000`
+   - If the developer only needs the smallest three-panel proof, use [references/minimal-acceptance.md](./references/minimal-acceptance.md) instead of jumping straight to a larger smoke flow.
    - If the repository uses different paths, pass a JSON override file with `--layout`.
    - For local harness acceptance, prefer `npm run dev` over `npm start` unless the developer asked for production-mode proof.
    - Use repo scripts when they help, but do not block on `stack-up.sh` if another stable method can produce the same evidence.
@@ -59,5 +60,6 @@ Build a local evidence loop so agents can prove behavior with logs, metrics, and
 
 - Read [references/scaffold-spec.md](./references/scaffold-spec.md) for the file map and signal contract.
 - Read [references/acceptance-playbook.md](./references/acceptance-playbook.md) for boundary, orchestration, and acceptance patterns.
+- Read [references/minimal-acceptance.md](./references/minimal-acceptance.md) for the smallest logs-metrics-traces proof that should survive monorepos and unusual local layouts.
 - Read [references/example-prompts.md](./references/example-prompts.md) for prompts.
 - Use [scripts/validate-harness.js](./scripts/validate-harness.js) for the lightweight validator.

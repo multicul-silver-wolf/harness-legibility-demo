@@ -781,20 +781,6 @@ async function main() {
       ],
     });
 
-    results.push({
-      title:
-        "Check whether the current startup signal is healthy. Tell me the latest startup duration, whether it is under 800ms, and which log and trace records support your conclusion.",
-      pass:
-        startup.appMetric.durationMs < 800 &&
-        Boolean(startup.startupLog) &&
-        Boolean(startup.startupTrace),
-      details: [
-        `latest startup duration=${startup.appMetric.durationMs}ms`,
-        `startup log ts=${startup.startupLog?._time ?? "missing"} message=${startup.startupLog?._msg ?? "missing"}`,
-        `startup trace=${startup.startupTrace.traceId}`,
-      ],
-    });
-
     const allUnder2s = canonicalJourneys.every((definition) => {
       const span = journeyEvidence.journeySpans.get(definition.journey);
       return span && span.durationMs < 2000;
@@ -809,18 +795,6 @@ async function main() {
       details: canonicalJourneys.map((definition) => {
         const span = journeyEvidence.journeySpans.get(definition.journey);
         return `${definition.journey}=${span.durationMs}ms traceId=${span.traceId}`;
-      }),
-    });
-
-    results.push({
-      title:
-        "Run the UI once and summarize the latest span durations for the four canonical journeys. If any journey is slower than expected, point to the exact trace evidence.",
-      pass: canonicalJourneys.every((definition) =>
-        journeyEvidence.journeySpans.has(definition.journey),
-      ),
-      details: canonicalJourneys.map((definition) => {
-        const span = journeyEvidence.journeySpans.get(definition.journey);
-        return `${definition.journey}: ${span.durationMs}ms via trace ${span.traceId}`;
       }),
     });
 
@@ -883,19 +857,6 @@ async function main() {
       ],
     });
 
-    results.push({
-      title:
-        "Use Prometheus-style queries against the local metrics backend to tell me how many journey runs have been observed so far, how many HTTP request errors occurred, and what the latest startup duration is.",
-      pass:
-        journeyEvidence.aggregatedJourneyRuns >= canonicalJourneys.length &&
-        journeyEvidence.aggregatedHttpErrors === 0,
-      details: [
-        `journey runs=${journeyEvidence.aggregatedJourneyRuns}`,
-        `http request errors=${journeyEvidence.aggregatedHttpErrors}`,
-        `latest startup duration=${startup.victoriaMetric}ms`,
-      ],
-    });
-
     const regression = await runRegressionEvidence();
     const regressionJourneysHealthy = canonicalJourneys.every((definition) => {
       const span = regression.journeys.journeySpans.get(definition.journey);
@@ -915,34 +876,6 @@ async function main() {
         `journey runs=${regression.journeys.aggregatedJourneyRuns}`,
         `http request errors=${regression.journeys.aggregatedHttpErrors}`,
         `startup after change=${regression.startup.appMetric.durationMs}ms`,
-      ],
-    });
-
-    const hasJourneyLogsAfterChange = canonicalJourneys.every((definition) =>
-      regression.journeys.journeyLogs.has(definition.journey),
-    );
-    const hasJourneyMetricsAfterChange = canonicalJourneys.every((definition) =>
-      regression.journeys.journeyMetrics.has(definition.journey),
-    );
-    const hasJourneySpansAfterChange = canonicalJourneys.every((definition) =>
-      regression.journeys.journeySpans.has(definition.journey),
-    );
-
-    results.push({
-      title:
-        "Treat this repo like an agent-validation harness. After your change, use the local observability stack to confirm that the app still emits startup telemetry, journey logs, journey metrics, and journey spans.",
-      pass:
-        regression.startup.appMetric.durationMs < 800 &&
-        Boolean(regression.startup.startupLog) &&
-        Boolean(regression.startup.startupTrace) &&
-        hasJourneyLogsAfterChange &&
-        hasJourneyMetricsAfterChange &&
-        hasJourneySpansAfterChange,
-      details: [
-        `startup trace=${regression.startup.startupTrace.traceId}`,
-        `journey logs=${regression.journeys.journeyLogs.size}`,
-        `journey metrics=${regression.journeys.journeyMetrics.size}`,
-        `journey spans=${regression.journeys.journeySpans.size}`,
       ],
     });
   } finally {
